@@ -1,8 +1,9 @@
-import React, { useRef } from 'react'
-import { useFrame } from '@react-three/fiber';
+import React, { useRef, useState, useEffect } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Matrix4, Quaternion, Vector3 } from 'three';
-import { updatePlaneAxis } from './controls';
 import * as THREE from 'three';
+import { updatePlaneAxis } from './controls';
+
 const x = new Vector3(1, 0, 0);
 const y = new Vector3(0, 1, 0);
 const z = new Vector3(0, 0, 1);
@@ -11,12 +12,45 @@ export const planePosition = new Vector3(0, 3, 7);
 const delayedRotMatrix = new Matrix4();
 const delayedQuaternion = new Quaternion();
 
-export function Airplane(props) {
+// Biến toàn cục cho mouse control
+let isMouseDown = false;
+let theta = 0;
+let phi = 60;
+let targetTheta = 0;
+let targetPhi = 60;
+let onMouseDownTheta = 0;
+let onMouseDownPhi = 0;
+let onMouseDownPosition = { x: 0, y: 0 };
+const radius = 0.3;
 
+
+
+// Mouse event listeners
+window.addEventListener("mousedown", (e) => {
+  isMouseDown = true;
+  onMouseDownPosition = { x: e.clientX, y: e.clientY };
+  onMouseDownTheta = theta;
+  onMouseDownPhi = phi;
+});
+
+window.addEventListener("mouseup", () => {
+  isMouseDown = false;
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (isMouseDown) {
+    targetTheta = -((e.clientX - onMouseDownPosition.x) * 0.5) + onMouseDownTheta;
+    targetPhi = ((e.clientY - onMouseDownPosition.y) * 0.5) + onMouseDownPhi;
+    targetPhi = Math.min(180, Math.max(-90, targetPhi));
+  }
+});
+
+export function Airplane(props) {
   const groupRef = useRef();
   const helixMeshRef = useRef();
 
   useFrame(({ camera }) => {
+    // Cập nhật vị trí và hướng máy bay
     updatePlaneAxis(x, y, z, planePosition, camera);
 
     const rotMatrix = new Matrix4().makeBasis(x, y, z);
@@ -39,14 +73,30 @@ export function Airplane(props) {
 
     delayedRotMatrix.identity().makeRotationFromQuaternion(delayedQuaternion);
 
-    const cameraMatrix = new Matrix4()
-      .multiply(new Matrix4().makeTranslation(planePosition.x, planePosition.y, planePosition.z))
-      .multiply(delayedRotMatrix)
-      .multiply(new Matrix4().makeRotationX(-0.2))
-      .multiply(new Matrix4().makeTranslation(0, 0.015, 0.3));
+    // Smooth interpolation cho camera rotation
+    const smoothFactor = 0.09;
+    theta += (targetTheta - theta) * smoothFactor;
+    phi += (targetPhi - phi) * smoothFactor;
 
+    // Tính offset camera theo spherical coordinates
+    const offsetX = radius * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
+    const offsetY = radius * Math.sin(phi * Math.PI / 360);
+    const offsetZ = radius * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
+
+    // Transform offset theo hệ tọa độ local của máy bay
+    const localOffset = new Vector3(offsetX, offsetY, offsetZ);
+    localOffset.applyMatrix4(rotMatrix);
+
+    // Đặt vị trí camera theo máy bay + offset
+    camera.position.set(
+      planePosition.x + localOffset.x,
+      planePosition.y + localOffset.y,
+      planePosition.z + localOffset.z
+    );
+
+    camera.lookAt(planePosition);
     camera.matrixAutoUpdate = false;
-    camera.matrix.copy(cameraMatrix);
+    camera.updateMatrix();
     camera.matrixWorldNeedsUpdate = true;
 
     if (helixMeshRef.current) {
@@ -54,23 +104,23 @@ export function Airplane(props) {
     }
   });
 
-  // MATERIALS
-  const bodyMaterial = { color: '#ffffff' };
+  const bodyMaterial = {
+    color: new THREE.Color("#ccc"),
+    metalness: 1,
+    roughness: 0.1,
+    envMapIntensity: 2
+  };
   const wingMaterial = { color: '#0044ff' };
 
   return (
     <group ref={groupRef}>
-      {/* Scale giống như model gốc */}
       <group {...props} dispose={null} scale={0.01} rotation={[0, Math.PI / 2, 0]}>
-
-        {/* BODY — Fuselage */}
         <mesh
           geometry={new THREE.CylinderGeometry(0.3, 0.3, 4, 32)}
           material={new THREE.MeshStandardMaterial(bodyMaterial)}
           rotation={[0, 0, Math.PI / 2]}
         />
 
-        {/* NOSE */}
         <mesh
           geometry={new THREE.ConeGeometry(0.3, 1, 32)}
           material={new THREE.MeshStandardMaterial(bodyMaterial)}
@@ -78,22 +128,19 @@ export function Airplane(props) {
           rotation={[0, 0, Math.PI / 2 + Math.PI]}
         />
 
-        {/* WINGS */}
         <mesh
           geometry={new THREE.BoxGeometry(6, 0.1, 1)}
           material={new THREE.MeshStandardMaterial(wingMaterial)}
           position={[0, 0.2, 0]}
           rotation={[0, Math.PI / 2, 0]}
         />
-
-        {/* TAIL HORIZONTAL */}
+        {/* tail */}
         <mesh
           geometry={new THREE.BoxGeometry(2, 0.1, 0.5)}
           material={new THREE.MeshStandardMaterial(wingMaterial)}
           position={[-2, 0.2, 0]}
         />
 
-        {/* TAIL VERTICAL */}
         <mesh
           geometry={new THREE.BoxGeometry(0.1, 1, 0.5)}
           material={new THREE.MeshStandardMaterial(wingMaterial)}
@@ -101,13 +148,24 @@ export function Airplane(props) {
           rotation={[0, Math.PI / 2, 0]}
         />
 
-        {/* PROPELLER — optional nếu muốn */}
         <mesh ref={helixMeshRef} rotation={[0, Math.PI / 2, 0]} position={[3.0, 0, 0]}>
           <boxGeometry args={[0.05, 2, 0.1]} />
           <meshStandardMaterial color="white" />
         </mesh>
-
       </group>
     </group>
-  )
+  );
+}
+
+export default function App() {
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <Canvas camera={{ position: [0, 3, 7], fov: 45 }}>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[10, 10, 5]} intensity={1} />
+        <Airplane />
+        <gridHelper args={[50, 50]} />
+      </Canvas>
+    </div>
+  );
 }
