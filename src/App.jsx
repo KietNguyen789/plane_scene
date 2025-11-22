@@ -18,7 +18,7 @@ function App() {
 
       <Landscape />
       <Airplane />
-      <Targets />
+      {/* <Targets /> */}
 
       <directionalLight
         castShadow

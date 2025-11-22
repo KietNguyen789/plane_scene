@@ -9,16 +9,18 @@ import { Color, MeshStandardMaterial } from "three";
 
 export function Landscape(props) {
   const { nodes, materials } = useGLTF("assets/models/scene.glb");
-
+  const material = new MeshStandardMaterial({
+    envMapIntensity: 0,
+    color: new Color("#ea6619"),
+    roughness: 0,
+    metalness: 0,
+    emissive: new Color("#f6390f").multiplyScalar(1),
+    opacity: 1,
+  });
+  material.visible = false
   const [lightsMaterial, waterMaterial] = useMemo(() => {
     return [
-      new MeshStandardMaterial({
-        envMapIntensity: 0,
-        color: new Color("#ea6619"),
-        roughness: 0,
-        metalness: 0,
-        emissive: new Color("#f6390f").multiplyScalar(1),
-      }),
+      material,
       <MeshReflectorMaterial
         transparent={true}
         opacity={0.6}
