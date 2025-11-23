@@ -59,8 +59,8 @@ function ObservationTower({ position, rotation = [0, 0, 0], scale = 1 }) {
     flowersRef.current.forEach((flower, index) => {
       if (flower) {
         const offset = index * 0.5; // Mỗi bông lệchpha
-        flower.rotation.z = Math.sin(time * 1.5 + offset) * 0.25;
-        flower.rotation.x = Math.cos(time * 1.2 + offset) * 0.2;
+        flower.rotation.z = Math.sin(time * 1.5 + offset) * 0.3;
+        flower.rotation.x = Math.cos(time * 1.2 + offset) * 0.25;
       }
     });
   });

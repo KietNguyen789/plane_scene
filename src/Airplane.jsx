@@ -4,7 +4,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three';
 import * as THREE from 'three';
 import { updatePlaneAxis } from './controls';
 import { useGLTF } from '@react-three/drei';
-
+import TriangleGeometry from './myTriangle';
 const x = new Vector3(1, 0, 0);
 const y = new Vector3(0, 1, 0);
 const z = new Vector3(0, 0, 1);
@@ -151,11 +151,37 @@ export function Airplane(props) {
         />
 
         <mesh
-          geometry={new THREE.BoxGeometry(6, 0.1, 1)}
+          geometry={new THREE.BoxGeometry(4, 0.1, 1)}
           material={new THREE.MeshStandardMaterial(wingMaterial)}
           position={[0, 0.2, 0]}
           rotation={[0, Math.PI / 2, 0]}
         />
+
+        {/* Cánh phụ bên trái */}
+        <group position={[0, 0.2, -2]} scale={1} rotation={[0, Math.PI / 2, 0]}>
+          <mesh>
+            <TriangleGeometry
+              p1={[0, 0, 0]}
+              p2={[1, 0, 0]}
+              p3={[0.5, 0, 0.5]}
+            />
+            <meshStandardMaterial color="white" side={THREE.DoubleSide} />
+          </mesh>
+        </group>
+
+        {/* Cánh phụ bên phải - đối xứng */}
+        <group position={[0, 0.2, 2]} scale={1} rotation={[-Math.PI / 2, -Math.PI / 2, 0]}>
+          <mesh>
+            <TriangleGeometry
+              p1={[0, 0, 0]}
+              p2={[1, 0, 0]}
+              p3={[0.5, 0, -0.5]}
+
+            />
+            <meshStandardMaterial color="white" side={THREE.DoubleSide} />
+          </mesh>
+        </group>
+
         {/* tail */}
         <mesh
           geometry={new THREE.BoxGeometry(2, 0.1, 0.5)}

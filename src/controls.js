@@ -30,28 +30,35 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
 
   if (controls["a"]) {
     jawVelocity += 0.0025;
+    //planePosition.ro
   }
 
   if (controls["d"]) {
     jawVelocity -= 0.0025;
   }
 
-  if (controls["w"]) {
-    pitchVelocity -= 0.09;
-  }
+  // if (controls["w"]) {
+  //   pitchVelocity -= 0.09;
+  // }
 
   if (controls["s"]) {
-    pitchVelocity += 0.0025;
+    // pitchVelocity += 0.0025;
+    planePosition.add(z.clone().multiplyScalar(0.02)); // lùi lại
+  }
+
+  if (controls["w"]) {
+    // pitchVelocity += 0.0025;
+    planePosition.add(z.clone().multiplyScalar(-0.02)); // lùi lại
   }
 
   if (controls["r"]) {
-    jawVelocity = 0;
-    pitchVelocity = 0;
-    turbo = 0;
-    x.set(1, 0, 0);
-    y.set(0, 1, 0);
-    z.set(0, 0, 1);
-    planePosition.set(0, 3, 7);
+
+    planePosition.y -= 0.1 * 0.1;
+  }
+
+  if (controls["t"]) {
+
+    planePosition.y += 0.1 * 0.1;
   }
 
   if (corners) {
@@ -76,11 +83,11 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
 
   }
 
-  x.applyAxisAngle(z, jawVelocity);
-  y.applyAxisAngle(z, jawVelocity);
+  x.applyAxisAngle(y, jawVelocity);
+  z.applyAxisAngle(y, jawVelocity);
 
-  y.applyAxisAngle(x, pitchVelocity);
-  z.applyAxisAngle(x, pitchVelocity);
+  y.applyAxisAngle(z, pitchVelocity);
+  x.applyAxisAngle(z, pitchVelocity);
 
   x.normalize();
   y.normalize();
@@ -88,7 +95,7 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
 
   // Plane position & velocity (unchanged)
   if (controls.shift) {
-    turbo += 0.1;
+    turbo += 4;
   } else {
     turbo *= 0.95;
   }
