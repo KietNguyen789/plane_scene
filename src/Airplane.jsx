@@ -3,12 +3,12 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import * as THREE from 'three';
 import { updatePlaneAxis } from './controls';
+import { useGLTF } from '@react-three/drei';
 
 const x = new Vector3(1, 0, 0);
 const y = new Vector3(0, 1, 0);
 const z = new Vector3(0, 0, 1);
 export const planePosition = new Vector3(0, 3, 7);
-
 const delayedRotMatrix = new Matrix4();
 const delayedQuaternion = new Quaternion();
 
@@ -46,12 +46,34 @@ window.addEventListener("mousemove", (e) => {
 });
 
 export function Airplane(props) {
+  const [corners, setCorner] = useState()
+  const { nodes, materials } = useGLTF("assets/models/scene.glb");
+
+  useEffect(() => {
+    // Giả sử model nằm trong nodes.Model
+    const mesh = nodes.Model || nodes.Scene || nodes.YourMeshName;
+
+    const box = new THREE.Box3().setFromObject(mesh);
+    const min = box.min;  // góc min (x-, y-, z-)
+    const max = box.max;  // góc max (x+, y+, z+)
+
+
+
+    // 8 điểm góc của bounding box
+    setCorner(
+
+      new THREE.Vector3(min.x, min.y, min.z),
+    );
+
+
+  }, [nodes]);
   const groupRef = useRef();
   const helixMeshRef = useRef();
 
+
   useFrame(({ camera }) => {
     // Cập nhật vị trí và hướng máy bay
-    updatePlaneAxis(x, y, z, planePosition, camera);
+    updatePlaneAxis(x, y, z, planePosition, camera, corners);
 
     const rotMatrix = new Matrix4().makeBasis(x, y, z);
 
@@ -111,7 +133,7 @@ export function Airplane(props) {
     envMapIntensity: 2
   };
   const wingMaterial = { color: '#0044ff' };
-
+  const tailMaterial = { color: '#000' };
   return (
     <group ref={groupRef}>
       <group {...props} dispose={null} scale={0.01} rotation={[0, Math.PI / 2, 0]}>
@@ -137,13 +159,13 @@ export function Airplane(props) {
         {/* tail */}
         <mesh
           geometry={new THREE.BoxGeometry(2, 0.1, 0.5)}
-          material={new THREE.MeshStandardMaterial(wingMaterial)}
+          material={new THREE.MeshStandardMaterial(tailMaterial)}
           position={[-2, 0.2, 0]}
         />
 
         <mesh
           geometry={new THREE.BoxGeometry(0.1, 1, 0.5)}
-          material={new THREE.MeshStandardMaterial(wingMaterial)}
+          material={new THREE.MeshStandardMaterial(tailMaterial)}
           position={[-2, 0, 0]}
           rotation={[0, Math.PI / 2, 0]}
         />

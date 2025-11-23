@@ -7,7 +7,7 @@ import { SphereEnv } from "./SphereEnv";
 import { Airplane } from "./Airplane";
 import { Targets } from "./Targets";
 import { MotionBlur } from "./MotionBlur";
-
+import { myEnvironment } from "./environment";
 function App() {
   return (
     <>
@@ -17,7 +17,11 @@ function App() {
       <PerspectiveCamera makeDefault position={[0, 10, 10]} />
 
       <Landscape />
+
       <Airplane />
+
+      {/* <MyEnvironment /> */}
+
       {/* <Targets /> */}
 
       <directionalLight
