@@ -156,28 +156,21 @@ export function Airplane(props) {
           position={[0, 0.2, 0]}
           rotation={[0, Math.PI / 2, 0]}
         />
-
-        {/* Cánh phụ bên trái */}
-        <group position={[0, 0.2, -2]} scale={1} rotation={[0, Math.PI / 2, 0]}>
+        {/* tam giac trai */}
+        <group position={[-0.2, 0.1, -2]} scale={1} rotation={[0, Math.PI / 4, 0]}>
           <mesh>
-            <TriangleGeometry
-              p1={[0, 0, 0]}
+            <TriangleGeometry p1={[0, 0, 0]}
               p2={[1, 0, 0]}
-              p3={[0.5, 0, 0.5]}
-            />
+              p3={[0, 0, 0.5]} />
             <meshStandardMaterial color="white" side={THREE.DoubleSide} />
           </mesh>
         </group>
-
-        {/* Cánh phụ bên phải - đối xứng */}
-        <group position={[0, 0.2, 2]} scale={1} rotation={[-Math.PI / 2, -Math.PI / 2, 0]}>
+        {/* tam giac phai */}
+        <group position={[-0.2, 0.1, 2]} scale={1} rotation={[0, -Math.PI / 4, 0]}>
           <mesh>
-            <TriangleGeometry
-              p1={[0, 0, 0]}
+            <TriangleGeometry p1={[0, 0, 0]}
               p2={[1, 0, 0]}
-              p3={[0.5, 0, -0.5]}
-
-            />
+              p3={[0, 0, 0.5]} />
             <meshStandardMaterial color="white" side={THREE.DoubleSide} />
           </mesh>
         </group>
