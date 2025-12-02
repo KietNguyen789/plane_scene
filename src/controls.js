@@ -54,7 +54,7 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   if (controls["r"]) {
 
     planePosition.y -= 0.1 * 0.1;
-  }
+  }//aaaaaaaaaaaaaaaaaa
 
   if (controls["t"]) {
 
