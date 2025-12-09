@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Quaternion, TorusGeometry, Vector3 } from "three";
+import { Quaternion, SphereGeometry, Vector3 } from "three";
 import { mergeBufferGeometries } from "three-stdlib";
 import { useFrame } from "@react-three/fiber";
 import { planePosition } from "./Airplane";
@@ -12,12 +12,37 @@ function randomPoint(scale) {
   ).multiply(scale || new Vector3(1, 1, 1));
 }
 
-const TARGET_RAD = 0.125;
+function createCloudGeometry(center) {
+  const geometries = [];
+
+  // Main cloud body - 4-6 overlapping spheres
+  const numSpheres = 4 + Math.floor(Math.random() * 3);
+  const mainRadius = 0.15;
+
+  for (let i = 0; i < numSpheres; i++) {
+    const radius = mainRadius * (0.6 + Math.random() * 0.7);
+    const offsetX = (Math.random() - 0.5) * mainRadius * 2;
+    const offsetY = (Math.random() - 0.5) * mainRadius * 1.2;
+    const offsetZ = (Math.random() - 0.5) * mainRadius * 0.8;
+
+    const sphere = new SphereGeometry(radius, 10, 10);
+    sphere.translate(
+      center.x + offsetX,
+      center.y + offsetY,
+      center.z + offsetZ
+    );
+    geometries.push(sphere);
+  }
+
+  return mergeBufferGeometries(geometries);
+}
+
+const TARGET_RAD = 0.25;
 
 export function Targets() {
   const [targets, setTargets] = useState(() => {
     const arr = [];
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 20; i++) {
       arr.push({
         center: randomPoint(new Vector3(4, 1, 4)).add(
           new Vector3(0, 2 + Math.random() * 2, 0)
@@ -34,17 +59,10 @@ export function Targets() {
     let geo;
 
     targets.forEach((target) => {
-      const torusGeo = new TorusGeometry(TARGET_RAD, 0.02, 8, 25);
-      torusGeo.applyQuaternion(
-        new Quaternion().setFromUnitVectors(
-          new Vector3(0, 0, 1),
-          target.direction
-        )
-      );
-      torusGeo.translate(target.center.x, target.center.y, target.center.z);
+      const cloudGeo = createCloudGeometry(target.center);
 
-      if (!geo) geo = torusGeo;
-      else geo = mergeBufferGeometries([geo, torusGeo]);
+      if (!geo) geo = cloudGeo;
+      else geo = mergeBufferGeometries([geo, cloudGeo]);
     });
 
     return geo;
@@ -72,7 +90,13 @@ export function Targets() {
 
   return (
     <mesh geometry={geometry}>
-      <meshStandardMaterial roughness={0.5} metalness={0.5} />
+      <meshStandardMaterial
+        color="#b8d8f0"
+        roughness={0.9}
+        metalness={0.1}
+        opacity={0.5}
+        transparent
+      />
     </mesh>
   );
 }

@@ -22,7 +22,7 @@ function App() {
 
       {/* <MyEnvironment /> */}
 
-      {/* <Targets /> */}
+      <Targets />
 
       <directionalLight
         castShadow
