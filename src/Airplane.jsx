@@ -9,7 +9,7 @@ import { Environment, ContactShadows, RoundedBox, useTexture } from '@react-thre
 const x = new Vector3(1, 0, 0);
 const y = new Vector3(0, 1, 0);
 const z = new Vector3(0, 0, 1);
-export const planePosition = new Vector3(0, 7, 7);
+export const planePosition = new Vector3(0, 6, 7);
 const delayedRotMatrix = new Matrix4();
 const delayedQuaternion = new Quaternion();
 
