@@ -3,6 +3,7 @@ import { MeshReflectorMaterial, useGLTF } from "@react-three/drei";
 import { Color, MeshStandardMaterial } from "three";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import { Targets } from "./Targets";
 // Component cho trạm quan sát
 function ObservationTower({ position, rotation = [0, 0, 0], scale = 1 }) {
   const woodMaterial = new THREE.MeshStandardMaterial({
@@ -359,56 +360,11 @@ function ObservationTower({ position, rotation = [0, 0, 0], scale = 1 }) {
   );
 }
 
-export function Landscape(props) {
-  const { nodes, materials } = useGLTF("assets/models/scene.glb");
+function LandscapeTile({ position, rotation, nodes, materials, lightsMaterial, waterMaterial }) {
 
-  const material = new MeshStandardMaterial({
-    envMapIntensity: 0,
-    color: new Color("#ea6619"),
-    roughness: 0,
-    metalness: 0,
-    emissive: new Color("#f6390f").multiplyScalar(1),
-    opacity: 1,
-  });
-  material.visible = false;
-
-  const [lightsMaterial, waterMaterial] = useMemo(() => {
-    return [
-      material,
-      <MeshReflectorMaterial
-        transparent={true}
-        opacity={0.6}
-        color={"#23281b"}
-        roughness={0}
-        blur={[10, 10]}
-        mixBlur={1}
-        mixStrength={20}
-        mixContrast={1.2}
-        resolution={512}
-        mirror={0}
-        depthScale={0}
-        minDepthThreshold={0}
-        maxDepthThreshold={0.1}
-        depthToBlurRatioBias={0.0025}
-        debug={0}
-        reflectorOffset={0.0}
-      />,
-    ];
-  }, []);
-
-  useEffect(() => {
-    const landscapeMat = materials["Material.009"];
-    landscapeMat.envMapIntensity = 0.75;
-
-    const treesMat = materials["Material.008"];
-    treesMat.color = new Color("#2f2f13");
-    treesMat.envMapIntensity = 0.3;
-    treesMat.roughness = 1;
-    treesMat.metalness = 0;
-  }, [materials]);
 
   return (
-    <group {...props} dispose={null}>
+    <group position={position} rotation={rotation}>
       <mesh
         geometry={nodes.landscape_gltf.geometry}
         material={materials["Material.009"]}
@@ -457,7 +413,6 @@ export function Landscape(props) {
         material={lightsMaterial}
         castShadow
       />
-
       {/* TRẠM QUAN SÁT */}
       {/* Trạm 1 - Góc tây bắc */}
       <ObservationTower
@@ -486,6 +441,138 @@ export function Landscape(props) {
         rotation={[0, -Math.PI / 8, 0]}
         scale={1.1}
       />
+      <Targets />
+    </group>
+  );
+}
+
+export function Landscape(props) {
+  const { nodes, materials } = useGLTF("assets/models/scene.glb");
+
+  const material = new MeshStandardMaterial({
+    envMapIntensity: 0,
+    color: new Color("#ea6619"),
+    roughness: 0,
+    metalness: 0,
+    emissive: new Color("#f6390f").multiplyScalar(1),
+    opacity: 1,
+  });
+  material.visible = false;
+
+  const [lightsMaterial, waterMaterial] = useMemo(() => {
+    return [
+      material,
+      <MeshReflectorMaterial
+        transparent={true}
+        opacity={0.6}
+        color={"#23281b"}
+        roughness={0}
+        blur={[10, 10]}
+        mixBlur={1}
+        mixStrength={20}
+        mixContrast={1.2}
+        resolution={512}
+        mirror={0}
+        depthScale={0}
+        minDepthThreshold={0}
+        maxDepthThreshold={0.1}
+        depthToBlurRatioBias={0.0025}
+        debug={0}
+        reflectorOffset={0.0}
+      />,
+    ];
+  }, []);
+
+  useEffect(() => {
+    const landscapeMat = materials["Material.009"];
+    landscapeMat.envMapIntensity = 0.75;
+
+    const treesMat = materials["Material.008"];
+    treesMat.color = new Color("#2f2f13");
+    treesMat.envMapIntensity = 0.3;
+    treesMat.roughness = 1;
+    treesMat.metalness = 0;
+  }, [materials]);
+
+  // const { tiles, towers } = useMemo(() => {
+  //     const tilesData = [];
+  //     const towersData = [];
+
+  //     const gridSize = 2; // 3x3
+  //     // !!! QUAN TRỌNG: Cần chỉnh số này khớp với kích thước thật của model landscape.
+  //     // Dựa vào toạ độ nước (khoảng 2-3 unit) và cây cối, tôi ước lượng model rộng khoảng 10 unit.
+  //     // Nếu bị chồng lấn hoặc hở, hãy chỉnh số này (ví dụ: 8 hoặc 12).
+  //     const tileSize = 12; 
+
+  //     const offset = (gridSize - 1) * tileSize / 2;
+
+  //     let idCounter = 0;
+
+  //     for (let i = 0; i < gridSize; i++) {
+
+  //         const x = i * tileSize - offset;
+  //         const z = j * tileSize - offset;
+
+  //         // 1. Setup cho ô đất
+  //         // Xoay ngẫu nhiên 0, 90, 180, 270 độ để các ô trông khác nhau nhưng vẫn khớp cạnh vuông
+  //         const randomRotationY = Math.floor(Math.random() * 4) * (Math.PI / 2);
+
+  //         tilesData.push({
+  //           id: `tile-${idCounter}`,
+  //           position: [x, 0, z],
+  //           rotation: [0, randomRotationY, 0]
+  //         });
+
+  //         // 2. Setup cho tháp quan sát (Ngẫu nhiên có hoặc không)
+  //         // 50% cơ hội xuất hiện tháp trên mỗi ô đất
+  //         if (Math.random() > 0.3) { 
+  //           // Tạo vị trí ngẫu nhiên TRONG PHẠM VI ô đất đó
+  //           const towerOffsetX = (Math.random() - 0.5) * (tileSize * 0.6); // Random trong khoảng 60% diện tích tile
+  //           const towerOffsetZ = (Math.random() - 0.5) * (tileSize * 0.6);
+  //           const towerRotY = Math.random() * Math.PI * 2;
+
+  //           towersData.push({
+  //             id: `tower-${idCounter}`,
+  //             position: [x + towerOffsetX, 1.2, z + towerOffsetZ], // y=1.2 để chỉnh độ cao chân tháp
+  //             rotation: [0, towerRotY, 0],
+  //             scale: 0.8 + Math.random() * 0.4 // Scale ngẫu nhiên
+  //           });
+  //         }
+  //         idCounter++;
+
+  //     }
+  //     return { tiles: tilesData, towers: towersData };
+  //   }, []);
+
+
+  return (
+    <group {...props} dispose={null}>
+
+      <LandscapeTile key={'1'}
+        position={[0, 0, 0]}
+
+        nodes={nodes}
+        materials={materials}
+        lightsMaterial={lightsMaterial}
+        waterMaterial={waterMaterial} />
+
+      <LandscapeTile key={'2'}
+        position={[0, 0, -10]}
+        rotation={[0, 0, 0]}
+        nodes={nodes}
+        materials={materials}
+        lightsMaterial={lightsMaterial}
+        waterMaterial={waterMaterial} />
+
+      {/* <LandscapeTile key={'2'}
+        position={[0, 0, -20]}
+        rotation={[0, 0, 0]}
+        nodes={nodes}
+        materials={materials}
+        lightsMaterial={lightsMaterial}
+        waterMaterial={waterMaterial} /> */}
+
+
     </group>
   );
 }

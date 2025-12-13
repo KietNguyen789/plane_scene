@@ -9,7 +9,7 @@ import { Environment, ContactShadows, RoundedBox, useTexture } from '@react-thre
 const x = new Vector3(1, 0, 0);
 const y = new Vector3(0, 1, 0);
 const z = new Vector3(0, 0, 1);
-export const planePosition = new Vector3(0, 2.6, 7);
+export const planePosition = new Vector3(0, 7, 7);
 const delayedRotMatrix = new Matrix4();
 const delayedQuaternion = new Quaternion();
 
@@ -193,7 +193,7 @@ export function Airplane(props) {
 
         {/* 6. CÀNG ĐÁP (LANDING GEAR) */}
         {/* Bánh trái */}
-        <group position={[0.5, -0.6, 1]}>
+        {/* <group position={[0.5, -0.6, 1]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[0.15, 0.08, 16, 32]} />
             {materials.glass}
@@ -202,9 +202,9 @@ export function Airplane(props) {
             <cylinderGeometry args={[0.05, 0.05, 0.6]} />
             {materials.metal}
           </mesh>
-        </group>
+        </group> */}
         {/* Bánh phải */}
-        <group position={[0.5, -0.6, -1]}>
+        {/* <group position={[0.5, -0.6, -1]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[0.15, 0.08, 16, 32]} />
             {materials.glass}
@@ -213,7 +213,7 @@ export function Airplane(props) {
             <cylinderGeometry args={[0.05, 0.05, 0.6]} />
             {materials.metal}
           </mesh>
-        </group>
+        </group> */}
 
       </group>
     </group>

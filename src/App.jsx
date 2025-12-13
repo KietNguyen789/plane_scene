@@ -18,11 +18,11 @@ function App() {
 
       <Landscape />
 
-      <Airplane />
+      <Airplane rotation={[]} />
 
       {/* <MyEnvironment /> */}
 
-      <Targets />
+      {/* <Targets /> */}
 
       <directionalLight
         castShadow
