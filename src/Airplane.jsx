@@ -9,7 +9,7 @@ import { Environment, ContactShadows, RoundedBox, useTexture } from '@react-thre
 const x = new Vector3(1, 0, 0);
 const y = new Vector3(0, 1, 0);
 const z = new Vector3(0, 0, 1);
-export const planePosition = new Vector3(0, 6, 7);
+export const planePosition = new Vector3(0.5, 3.5, 7);
 const delayedRotMatrix = new Matrix4();
 const delayedQuaternion = new Quaternion();
 
@@ -18,12 +18,13 @@ let isMouseDown = false;
 let theta = 0;
 let phi = 60;
 let targetTheta = 0;
-let targetPhi = 60;
+let targetPhi = 60; // init vị trí camera góc phi = 60 độ trục song song với trục z
 let onMouseDownTheta = 0;
 let onMouseDownPhi = 0;
 let onMouseDownPosition = { x: 0, y: 0 };
-const radius = 0.3;
-
+const radius = 0.3; // ban kinh duong tron
+const widthW = window.innerWidth;
+const heightH = window.innerHeight;
 // --- SỰ KIỆN CHUỘT ---
 window.addEventListener("mousedown", (e) => {
   isMouseDown = true;
@@ -38,9 +39,12 @@ window.addEventListener("mouseup", () => {
 
 window.addEventListener("mousemove", (e) => {
   if (isMouseDown) {
+    // 0.5 la hẹ số nhạy
+    //uoc tinh thuc nghiẹm
     targetTheta = -((e.clientX - onMouseDownPosition.x) * 0.5) + onMouseDownTheta;
     targetPhi = ((e.clientY - onMouseDownPosition.y) * 0.5) + onMouseDownPhi;
     targetPhi = Math.min(180, Math.max(-90, targetPhi));
+    // can tren 180, can duoi la -90
   }
 });
 
@@ -64,7 +68,9 @@ export function Airplane(props) {
       groupRef.current.matrixAutoUpdate = false;
       groupRef.current.matrix.copy(matrix);
       groupRef.current.matrixWorldNeedsUpdate = true;
+
     }
+
 
     // Camera follow logic
     const quaternionA = new Quaternion().copy(delayedQuaternion);
@@ -102,7 +108,7 @@ export function Airplane(props) {
     // --- SỬA LOGIC QUAY CÁNH QUẠT ---
     if (helixMeshRef.current) {
       // Máy bay hướng theo trục X, nên cánh quạt phải quay quanh trục X
-      helixMeshRef.current.rotation.x -= 0.6;
+      helixMeshRef.current.rotation.x -= 5;
     }
   });
 
@@ -226,15 +232,15 @@ export default function App() {
       <Canvas shadows camera={{ position: [0, 3, 7], fov: 45 }}>
         {/* Môi trường và Ánh sáng */}
         <ambientLight intensity={0.7} />
-        <directionalLight
+        {/* <directionalLight
           position={[10, 10, 5]}
           intensity={1.5}
           castShadow
           shadow-mapSize={[1024, 1024]}
-        />
+        /> */}
 
         {/* Environment giúp vật liệu kim loại phản chiếu đẹp hơn */}
-        <Environment preset="city" />
+        {/* <Environment preset="city" /> */}
 
         <Airplane />
 

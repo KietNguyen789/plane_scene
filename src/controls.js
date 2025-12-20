@@ -21,12 +21,12 @@ let maxVelocity = 0.04;
 let rollVelocity = 0;
 let pitchVelocity = 0;
 let yawVelocity = 0;
-let planeSpeed = 0.009;
+let planeSpeed = 0.0099;
 export let turbo = 0;
 
 // [MỚI] Biến theo dõi góc roll hiện tại và giới hạn (90 độ = PI/2)
 let currentRoll = 0;
-const MAX_ROLL = Math.PI / 3;
+const MAX_ROLL = Math.PI / 4;
 
 export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   // --- 1. GIẢM TỐC ĐỘ XOAY TỰ ĐỘNG (DAMPING) ---
@@ -41,7 +41,8 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   // --- 2. XỬ LÝ PHÍM BẤM ---
   if (controls["a"]) {
 
-    yawVelocity += 0.0008;
+    yawVelocity += 0.001;
+
   }
   if (controls["q"]) {
     rollVelocity += 0.001;
@@ -49,11 +50,12 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   }
   if (controls["d"]) {
 
-    yawVelocity -= 0.0008;
+    yawVelocity -= 0.001;
+
   }
   if (controls["e"]) {
-    rollVelocity -= 0.001;
 
+    rollVelocity -= 0.001;
   }
 
   if (controls["arrowdown"]) {
@@ -108,22 +110,30 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   // Cập nhật lại góc hiện tại
   currentRoll = proposedRoll;
 
-  // Áp dụng deltaRoll đã được tính toán giới hạn vào trục
-  x.applyAxisAngle(z, deltaRoll);
-  y.applyAxisAngle(z, deltaRoll);
+  const worldUp = new THREE.Vector3(0, 1, 0); // Trục đứng của thế giới
 
-  // --- PITCH & YAW (Giữ nguyên) ---
-  y.applyAxisAngle(x, pitchVelocity);
-  z.applyAxisAngle(x, pitchVelocity);
+  const yawQuat = new THREE.Quaternion().setFromAxisAngle(worldUp, yawVelocity);
+  const pitchQuat = new THREE.Quaternion().setFromAxisAngle(x, pitchVelocity);
+  const rollQuat = new THREE.Quaternion().setFromAxisAngle(z, deltaRoll);
 
-  const worldUp = new THREE.Vector3(0, 1, 0);
-  x.applyAxisAngle(worldUp, yawVelocity);
-  y.applyAxisAngle(worldUp, yawVelocity);
-  z.applyAxisAngle(worldUp, yawVelocity);
+  // Kết hợp các Quaternion: 
+  // Quan trọng: Áp dụng yawQuat (World) trước, sau đó mới đến Pitch và Roll (Local)
+  const finalQuat = new THREE.Quaternion();
+  finalQuat.multiply(yawQuat);   // Xoay hướng theo chân trời (Khóa trục chúi mũi)
+  finalQuat.multiply(pitchQuat); // Xoay lên/xuống theo mũi máy bay
+  finalQuat.multiply(rollQuat);  // Xoay nghiêng theo thân máy bay
 
-  x.normalize();
-  y.normalize();
+  // Áp dụng cho các trục hệ cơ sở
+  x.applyQuaternion(finalQuat);
+  y.applyQuaternion(finalQuat);
+  z.applyQuaternion(finalQuat);
+
+  // --- 5. CHUẨN HÓA & KHỬ SAI SỐ (Bắt buộc để không bị méo trục) ---
   z.normalize();
+  x.crossVectors(y, z).normalize(); // Ép X vuông góc với Y và Z
+  y.crossVectors(z, x).normalize(); // Ép Y vuông góc với Z và X
+
+
 
   // --- 4. DI CHUYỂN MÁY BAY ---
   if (controls.shift) {
