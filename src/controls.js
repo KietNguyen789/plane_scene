@@ -110,28 +110,55 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   // Cập nhật lại góc hiện tại
   currentRoll = proposedRoll;
 
-  const worldUp = new THREE.Vector3(0, 1, 0); // Trục đứng của thế giới
 
+  const worldUp = new THREE.Vector3(0, 1, 0);
   const yawQuat = new THREE.Quaternion().setFromAxisAngle(worldUp, yawVelocity);
-  const pitchQuat = new THREE.Quaternion().setFromAxisAngle(x, pitchVelocity);
   const rollQuat = new THREE.Quaternion().setFromAxisAngle(z, deltaRoll);
 
-  // Kết hợp các Quaternion: 
-  // Quan trọng: Áp dụng yawQuat (World) trước, sau đó mới đến Pitch và Roll (Local)
-  const finalQuat = new THREE.Quaternion();
-  finalQuat.multiply(yawQuat);   // Xoay hướng theo chân trời (Khóa trục chúi mũi)
-  finalQuat.multiply(pitchQuat); // Xoay lên/xuống theo mũi máy bay
-  finalQuat.multiply(rollQuat);  // Xoay nghiêng theo thân máy bay
+  // Tạo Quaternion cho Pitch riêng để tính toán vị trí
+  const pitchQuat = new THREE.Quaternion().setFromAxisAngle(x, pitchVelocity);
 
-  // Áp dụng cho các trục hệ cơ sở
+  // LOGIC XOAY LỆCH TÂM:
+  // Khoảng cách từ tâm máy bay đến trục xoay (ví dụ 0.5 đơn vị)
+  const pivotDistance = 0.5;
+  let pivotVector = new THREE.Vector3(0, 0, 0);
+
+  if (controls["arrowup"]) {
+    // Khi ngóc lên: Xoay quanh điểm ở phía sau (Đuôi)
+    // Vector từ tâm đến điểm xoay là +Z (hướng về sau)
+    pivotVector.copy(z).multiplyScalar(pivotDistance);
+  } else if (controls["arrowdown"]) {
+    // Khi chúi xuống: Xoay quanh điểm ở phía trước (Mũi)
+    // Vector từ tâm đến điểm xoay là -Z (hướng về trước)
+    pivotVector.copy(z).multiplyScalar(-pivotDistance);
+  }
+
+  // Nếu có phím Pitch được nhấn, dịch chuyển planePosition để tạo hiệu ứng quay quanh trục lệch
+  if (pivotVector.length() > 0) {
+    // Điểm xoay thực tế trong không gian
+    const pivotPoint = planePosition.clone().add(pivotVector);
+    // Vector từ điểm xoay ngược về tâm máy bay
+    const relativePos = planePosition.clone().sub(pivotPoint);
+    // Xoay vector đó
+    relativePos.applyQuaternion(pitchQuat);
+    // Cập nhật vị trí máy bay mới
+    planePosition.copy(pivotPoint).add(relativePos);
+  }
+
+  // Kết hợp tất cả các vòng xoay vào các trục x, y, z
+  const finalQuat = new THREE.Quaternion();
+  finalQuat.multiply(yawQuat);
+  finalQuat.multiply(pitchQuat);
+  finalQuat.multiply(rollQuat);
+
   x.applyQuaternion(finalQuat);
   y.applyQuaternion(finalQuat);
   z.applyQuaternion(finalQuat);
 
-  // --- 5. CHUẨN HÓA & KHỬ SAI SỐ (Bắt buộc để không bị méo trục) ---
+  // --- 5. CHUẨN HÓA ---
   z.normalize();
-  x.crossVectors(y, z).normalize(); // Ép X vuông góc với Y và Z
-  y.crossVectors(z, x).normalize(); // Ép Y vuông góc với Z và X
+  x.crossVectors(y, z).normalize();
+  y.crossVectors(z, x).normalize();
 
 
 
