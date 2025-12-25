@@ -54,7 +54,7 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
 
   }
   if (controls["e"]) {
-
+    // tang 
     rollVelocity -= 0.001;
   }
 
@@ -72,9 +72,6 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   // } else {
   //   planeSpeed = 0.01;
   // }
-
-  if (controls["r"]) planePosition.y -= 0.001;
-  if (controls["t"]) planePosition.y += 0.001;
 
 
 

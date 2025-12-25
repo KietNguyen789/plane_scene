@@ -20,10 +20,6 @@ function App() {
 
       <Airplane rotation={[]} />
 
-      {/* <MyEnvironment /> */}
-
-      {/* <Targets /> */}
-
       <directionalLight
         castShadow
         color={"#f3d29a"}

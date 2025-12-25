@@ -56,7 +56,6 @@ function ObservationTower({ position, rotation = [0, 0, 0], scale = 1 }) {
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
 
-    // Đung đưa từng bông hoa
     flowersRef.current.forEach((flower, index) => {
       if (flower) {
         const offset = index * 0.5; // Mỗi bông lệchpha
@@ -447,7 +446,7 @@ function LandscapeTile({ position, rotation, nodes, materials, lightsMaterial, w
 }
 
 export function Landscape(props) {
-  const { nodes, materials } = useGLTF("assets/models/scene.glb");
+  const { nodes, materials } = useGLTF("./assets/models/scene.glb");
 
   const material = new MeshStandardMaterial({
     envMapIntensity: 0,
@@ -577,4 +576,4 @@ export function Landscape(props) {
   );
 }
 
-useGLTF.preload("assets/models/scene.glb");
+useGLTF.preload("./assets/models/scene.glb");
