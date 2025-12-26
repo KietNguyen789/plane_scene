@@ -72,10 +72,11 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
   // }
 
   if (controls["w"]) {
-    pitchVelocity -= 0.0020;
+    pitchVelocity += 0.0020;
   }
   if (controls["s"]) {
-    pitchVelocity += 0.0020;
+
+    pitchVelocity -= 0.0020;
   }
 
   // if (controls["w"]) {
