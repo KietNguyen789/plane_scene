@@ -40,28 +40,41 @@ export function updatePlaneAxis(x, y, z, planePosition, camera, corners) {
 
   // --- 2. XỬ LÝ PHÍM BẤM ---
   if (controls["a"]) {
-
-    yawVelocity += 0.001;
-
-  }
-  if (controls["q"]) {
     rollVelocity += 0.001;
 
+
+  }
+  // if (controls["q"]) {
+
+
+  // }
+  if (rollVelocity > 0.001 * 6.5) {
+    yawVelocity += 0.0009;
   }
   if (controls["d"]) {
+    rollVelocity -= 0.001;
 
-    yawVelocity -= 0.001;
 
   }
   if (controls["e"]) {
     // tang 
-    rollVelocity -= 0.001;
+
+  }
+  if (rollVelocity < -0.001 * 6.5) {
+    yawVelocity -= 0.0009;
   }
 
-  if (controls["arrowdown"]) {
+  // if (controls["arrowdown"]) {
+  //   pitchVelocity -= 0.0020;
+  // }
+  // if (controls["arrowup"]) {
+  //   pitchVelocity += 0.0020;
+  // }
+
+  if (controls["w"]) {
     pitchVelocity -= 0.0020;
   }
-  if (controls["arrowup"]) {
+  if (controls["s"]) {
     pitchVelocity += 0.0020;
   }
 
