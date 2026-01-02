@@ -113,12 +113,52 @@ export function Airplane(props) {
   });
 
   // --- VẬT LIỆU (MATERIALS) ---
-  const materials = {
-    body: <meshStandardMaterial color="#eeeeee" metalness={0.6} roughness={0.2} envMapIntensity={1} />,
-    glass: <meshStandardMaterial color="#111111" metalness={0.9} roughness={0.1} envMapIntensity={2} />,
-    wing: <meshStandardMaterial color="#E74C3C" metalness={0.2} roughness={0.5} />,
-    metal: <meshStandardMaterial color="#555555" metalness={1} roughness={0.3} />,
-    blade: <meshStandardMaterial color="#333333" metalness={0.8} roughness={0.2} />, // Màu riêng cho cánh quạt
+ const materials = {
+    body: (
+      <meshStandardMaterial
+        color="#eeeeee"
+        metalness={0.05}
+        roughness={0.15}
+        envMapIntensity={1.5}
+      />
+    ),
+
+
+    glass: (
+      <meshStandardMaterial
+        color="#111111"
+        metalness={0.9}
+        roughness={0.1}
+        envMapIntensity={2}
+      />
+    ),
+
+
+    wing: (
+      <meshStandardMaterial
+        color="#E74C3C"
+        metalness={0.05}
+        roughness={0.4}
+      />
+    ),
+
+
+    metal: (
+      <meshStandardMaterial
+        color="#555555"
+        metalness={1}
+        roughness={0.3}
+      />
+    ),
+
+
+    blade: (
+      <meshStandardMaterial
+        color="#333333"
+        metalness={0.8}
+        roughness={0.2}
+      />
+    ),
   };
 
   return (
